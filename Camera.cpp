@@ -70,14 +70,14 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 camera->m_ClockwiseMovment = !camera->m_ClockwiseMovment;
                 break;
             case GLFW_KEY_A:
-                std::cout << "A - divide angle by 2 Pressed" << std::endl;
-                if (camera->m_DegreeAmout != 45)
-                    camera->m_DegreeAmout /=2;
-                break;
-            case GLFW_KEY_Z:
-                std::cout << "Z - multiply angle by 2 Pressed" << std::endl;
+                std::cout << "A - multiply angle by 2 Pressed" << std::endl;
                 if (camera->m_DegreeAmout != 180)
                     camera->m_DegreeAmout *=2;
+                break;
+            case GLFW_KEY_Z:
+                std::cout << "Z - divide angle by 2 Pressed" << std::endl;
+                if (camera->m_DegreeAmout != 45)
+                    camera->m_DegreeAmout /=2;
                 break;
             case GLFW_KEY_P:
                 std::cout << "P - color picking" << std::endl;
