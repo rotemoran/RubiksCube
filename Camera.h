@@ -84,6 +84,9 @@ class Camera
         inline void setOrientation(glm::vec3 oriented){ m_Orientation= oriented;}
         inline void setPosition(glm::vec3 newPosition){ m_Position= newPosition;}
         void RotateCubeByAngel(glm::vec3 rotationAxis, int angle);
+        void ArrowKeyCallback(int key);
+        void render(GLFWwindow* window);
+        void remoteCubeFaceRotation(GLFWwindow* window, int face, glm::vec3 rotationAxis, float degree);
 
 
 };

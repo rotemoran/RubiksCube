@@ -56,13 +56,17 @@ private:
     void initializeCubes(); 
     std::vector<int> findFaceIds(int face);
     void updateLocks(int rotatedFace, glm::vec3 axis,  std::vector<int> &faceIds);
-    glm::vec3 locks = glm::vec3(0.0f);
+    void rotateFace(int face, glm::vec3 axis, float angle);
+    
 public:
+    glm::vec3 locks = glm::vec3(0.0f);
     RubiksCube(); // Constructor
 
-    void rotateFace(int face, glm::vec3 axis, float angle);
+    void mixCube();
     void resetCube();
     std::vector<Cube>& getCubes(); // Getter for cubes
+    // void rotateFaceAnimated(face, rotationAxis, correctionAngle);
+    void remoteCubeFaceRotation(int face, glm::vec3 rotationAxis, float degree, float updateDegree);
 };
 
 #endif // RUBIKSCUBE_H

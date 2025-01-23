@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp> // For glm::rotate, glm::translate
 #include <iostream>
 
+
 // Constructor
 RubiksCube::RubiksCube() {
     initializeCubes();
@@ -83,7 +84,7 @@ std::vector<int> RubiksCube::findFaceIds(int face){
 }
 
 bool isFraction(glm::vec3 vector){
-    const float epsilon = 1e-6f; // Small threshold for floating-point precision
+    const float epsilon = 1e-1f;// Small threshold for floating-point precision
     float fracPartX = vector.x - std::floor(vector.x);
     float fracPartY = vector.y - std::floor(vector.y);
     float fracPartZ = vector.z - std::floor(vector.z);
@@ -97,6 +98,8 @@ void RubiksCube::updateLocks(int rotatedFace, glm::vec3 axis, std::vector<int> &
     glm::vec3 l1 = cubes[faceIds[0]].position;
     glm::vec3 l2 = cubes[faceIds[1]].position;
     if (isFraction(l1) || isFraction(l2)){ // locks axis
+            std::cout << toStringVec3(l1) << std::endl;std::cout << toStringVec3(l2) << std::endl;
+            std::cout << "fall 1" << std::endl;
             locks= glm::vec3(1.0f)- axis;
     }
     else{ // check if can release lock - {0,1} {2,3} {4,5}
@@ -117,7 +120,7 @@ void RubiksCube::updateLocks(int rotatedFace, glm::vec3 axis, std::vector<int> &
 // Rotate a face by applying a transformation to the cubes in that face
 void RubiksCube::rotateFace(int face, glm::vec3 axis, float angle) { // face: right = 0, left =1, up =2, down = 3, back = 4, front = 5
     float isLocked = glm::dot(axis,locks);
-    std::cout << "isLocked: " << isLocked << std::endl;
+    std::cout << "isLocked: " << (isLocked==1) << std::endl;
     if(isLocked == 0){
         std::vector<int> faceIds = findFaceIds(face);
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis);
@@ -126,10 +129,26 @@ void RubiksCube::rotateFace(int face, glm::vec3 axis, float angle) { // face: ri
             cubes[id].position = glm::vec3(newPosition);
             cubes[id].rotationMatrix = rotationMatrix * cubes[id].rotationMatrix;
             cubes[id].transformations.push_back({axis, angle});
-            std::cout << cubes[id].toString() << std::endl;
         }
         // lock/unlock axises if needed
         updateLocks(face, axis, faceIds);
+    }
+}
+
+void RubiksCube::remoteCubeFaceRotation(int face, glm::vec3 rotationAxis, float degree, float updateDegree) {
+    std::vector<int> faceIds = findFaceIds(face);
+    // Update transformation only once
+    if(updateDegree != 0.0f){
+        for (int id : faceIds)
+            cubes[id].transformations.push_back({rotationAxis, updateDegree});
+            updateLocks(face, rotationAxis, faceIds);
+    }
+        
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(degree), rotationAxis);
+    for (int id : faceIds) {
+        glm::vec4 newPosition = rotationMatrix * glm::vec4(cubes[id].position, 1.0f);
+        cubes[id].position = glm::vec3(newPosition);
+        cubes[id].rotationMatrix = rotationMatrix * cubes[id].rotationMatrix;
     }
 }
 
@@ -145,6 +164,38 @@ void RubiksCube::resetCube() {
 // Getter for the cubes
 std::vector<Cube>& RubiksCube::getCubes() {
     return cubes;
+}
+
+void RubiksCube::mixCube() {
+    // Seed the random number generator
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    int numTransformations = std::rand() % 30 + 20; // Random number between 1 and 20
+
+    // Define the valid rotation axis for each face
+    const std::vector<std::pair<int, glm::vec3>> faceAxisMap = {
+        {0, glm::vec3(1.0f, 0.0f, 0.0f)}, // RIGHT face -> X-axis
+        {1, glm::vec3(1.0f, 0.0f, 0.0f)}, // LEFT face -> X-axis
+        {2, glm::vec3(0.0f, 1.0f, 0.0f)}, // UP face -> Y-axis
+        {3, glm::vec3(0.0f, 1.0f, 0.0f)}, // DOWN face -> Y-axis
+        {4, glm::vec3(0.0f, 0.0f, 1.0f)}, // BACK face -> Z-axis
+        {5, glm::vec3(0.0f, 0.0f, 1.0f)}  // FRONT face -> Z-axis
+    };
+
+    // Apply random transformations
+    for (int i = 0; i < numTransformations; ++i) {
+        // Randomly select a face
+        int randomIndex = std::rand() % faceAxisMap.size();
+        int randomFace = faceAxisMap[randomIndex].first;
+        glm::vec3 rotationAxis = faceAxisMap[randomIndex].second;
+
+        // Randomly select an angle (90, -90, 180 degrees)
+        float randomAngle = 90.0f * (1 + std::rand() % 2); // 90 or 180 degrees
+        if (std::rand() % 2 == 0) {
+            randomAngle = -randomAngle; // Randomize the direction of rotation
+        }
+        // Rotate the selected face
+        rotateFace(randomFace, rotationAxis, randomAngle);
+    }
 }
 
 
