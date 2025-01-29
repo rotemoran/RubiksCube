@@ -93,7 +93,7 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 break;
             case GLFW_KEY_DOWN:
                 std::cout << "DOWN - rotate the cube downwards" << std::endl;
-                camera->ArrowKeyCallback(GLFW_KEY_UP);
+                camera->ArrowKeyCallback(GLFW_KEY_DOWN);
                 break;
             case GLFW_KEY_RIGHT:
                 std::cout << "RIGHT - rotate the cube right" << std::endl;
